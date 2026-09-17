@@ -12,7 +12,7 @@ export class SessionEngine {
     if (!Number.isInteger(step) || step < 0 || step >= dance.steps.length) throw new Error("Invalid challenge step.");
     this.step = step;
     this.phase = "countdown";
-    this.countdownUntil = now + 2000;
+    this.countdownUntil = now + 3000;
   }
 
   tick(now: number): boolean {

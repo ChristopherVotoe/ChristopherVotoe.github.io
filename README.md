@@ -71,3 +71,7 @@ Create my video stitches the two captures, open hands first and fists second, in
 The current edit repeats both clips at 86 BPM across 0:24–0:35 of the song (11 seconds total). One complete recorded up/down cycle maps to one beat; the two-cycle recordings play at approximately 2.867× speed. Capture guides retain their slower practice pace. Beat timing starts at the selected excerpt, with frame-rounded cut boundaries.
 
 The final video now loops the open-hand signal from 0–3 seconds, then loops the fist signal from 3–11 seconds. The 86 BPM playback speed and 0:24–0:35 music excerpt are unchanged.
+
+## Automatic test flow
+
+The home page discloses camera recording and automatic processing before Test now. That button opens `/record`, requests camera access when needed, and starts the two guided recordings after countdowns. Completion routes to `/results`, uploads and renders automatically, then attempts playback with sound. Browser autoplay restrictions may require a Play tap. Permission and render errors offer recovery controls. The dance reveal appears only after processing.

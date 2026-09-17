@@ -12,7 +12,7 @@ export function useDanceSession(stream: React.RefObject<MediaStream | null>) {
   const clips = useRef<(Capture | null)[]>(Array.from({ length: dance.steps.length }, () => null));
   const output = useRef<string | null>(null);
   const operation = useRef<AbortController | null>(null);
-  const [view, setView] = useState({ phase: "ready" as Phase, step: 0, countdown: 2, clips: Array.from({ length: dance.steps.length }, (): Capture | null => null), output: null as string | null, error: "" });
+  const [view, setView] = useState({ phase: "ready" as Phase, step: 0, countdown: 3, clips: Array.from({ length: dance.steps.length }, (): Capture | null => null), output: null as string | null, error: "" });
   const publish = useCallback((error = "") => {
     const e = engine.current;
     setView({ phase: e.phase, step: e.step, countdown: Math.max(1, Math.ceil((e.countdownUntil - performance.now()) / 1000)), clips: [...clips.current], output: output.current, error });
@@ -101,6 +101,14 @@ export function useDanceSession(stream: React.RefObject<MediaStream | null>) {
   };
 
   return { view, engine, begin, frame, pause, render,
+    prepareRetake: (step: number) => {
+      operation.current?.abort(); operation.current = null;
+      if (output.current) URL.revokeObjectURL(output.current);
+      output.current = null;
+      engine.current.step = step;
+      engine.current.phase = "paused";
+      publish();
+    },
     cancelRender: () => { operation.current?.abort(); operation.current = null; engine.current.phase = "review"; publish(); },
     remove: () => { clear(); publish(); },
   };

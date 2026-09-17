@@ -22,6 +22,9 @@ export async function renderDance(clips: File[], mirrored: boolean[], signal: Ab
       names.push(name);
     }
     await copyFile(resolve("public/audio", dance.song), join(assets, dance.song));
+    for (const image of ["freddyfaz.jpeg", "chica.jpeg"]) {
+      await copyFile(resolve("public/image", image), join(assets, image));
+    }
     const serveUrl = await bundle({ entryPoint: resolve("src/remotion/Root.tsx"), outDir: join(root, "bundle"), publicDir: assets, enableCaching: false });
     signal.throwIfAborted();
     const inputProps = { clips: names, mirrored };
