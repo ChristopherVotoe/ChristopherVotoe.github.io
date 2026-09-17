@@ -9,7 +9,10 @@ const MAX_CLIP = 8 * 1024 * 1024;
 
 export async function POST(request: Request) {
   const origin = request.headers.get("origin");
-  if (origin && origin !== new URL(request.url).origin) return Response.json({ error: "Use this app to submit a render." }, { status: 403 });
+  // Next.js may use localhost internally even when the browser connects to 127.0.0.1.
+  const url = new URL(request.url);
+  const expectedOrigin = `${url.protocol}//${request.headers.get("host") ?? url.host}`;
+  if (origin && origin !== expectedOrigin) return Response.json({ error: "Use this app to submit a render." }, { status: 403 });
   if (busy) return Response.json({ error: "The renderer is busy. Please try again shortly." }, { status: 429 });
   if (!request.headers.get("content-type")?.startsWith("multipart/form-data")) return Response.json({ error: "Expected recorded video clips." }, { status: 400 });
   if (Number(request.headers.get("content-length")) > MAX_BODY) return Response.json({ error: "The clips are too large. Please retake them." }, { status: 413 });

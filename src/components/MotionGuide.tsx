@@ -16,25 +16,25 @@ function Fist() {
   </g>;
 }
 
-export function MotionGuide({ kind, active, phase, countdown }: { kind: "inward" | "fists"; active: boolean; phase: Phase; countdown: number }) {
+export function MotionGuide({ kind, active, phase, countdown, overlay = false }: { kind: "inward" | "fists"; active: boolean; phase: Phase; countdown: number; overlay?: boolean }) {
   const recording = active && phase === "recording";
   const waiting = active && phase === "countdown";
   const demo = ["ready", "paused", "review", "complete"].includes(phase);
-  return <article className={`motion-card ${active ? "current" : ""}`}>
-    <div className="motion-heading"><span>{kind === "inward" ? "01 / IN & OUT" : "02 / UP & BACK"}</span><span>{recording ? "● FOLLOW & RECORD" : waiting ? `START IN ${countdown}` : "MOVEMENT GUIDE"}</span></div>
-    <svg key={`${kind}-${phase}`} viewBox="0 0 500 280" role="img" aria-label={kind === "inward" ? "Two open hands with thumbs up move toward the center and back outward" : "Backs of two closed fists move upward from the center and return"} className={`motion-demo ${recording || demo ? "moving" : ""}`}>
+  return <article className={overlay ? "motion-overlay" : `motion-card ${active ? "current" : ""}`}>
+    {!overlay && <div className="motion-heading"><span>{kind === "inward" ? "01 / UP & DOWN" : "02 / UP & BACK"}</span><span>{recording ? "● FOLLOW & RECORD" : waiting ? `START IN ${countdown}` : "MOVEMENT GUIDE"}</span></div>}
+    <svg key={`${kind}-${phase}`} viewBox="0 0 500 280" role="img" aria-label={kind === "inward" ? "Two open hands with fingers pointing inward move vertically from up to down and back" : "Backs of two closed fists move upward from the center and return"} className={`motion-demo ${recording || demo ? "moving" : ""}`}>
       <path d="M250 38 V242 M40 170 H460" stroke="#ced7c4" strokeDasharray="4 7" fill="none" />
       <circle cx="250" cy="170" r="5" fill="#8ba673" />
       {kind === "inward" ? <>
         <g className="hand-in-left"><g transform="translate(10 55)"><OpenHand /></g></g>
         <g className="hand-in-right"><g transform="translate(490 55) scale(-1 1)"><OpenHand /></g></g>
-        <path d="M190 240 H228 L220 234 M228 240 L220 246 M310 240 H272 L280 234 M272 240 L280 246" stroke="#638d35" strokeWidth="2" fill="none" />
+        <path d="M250 95 V190 L243 180 M250 190 L257 180 M250 95 L243 105 M250 95 L257 105" stroke="#638d35" strokeWidth="2" fill="none" />
       </> : <>
         <g className="hands-up"><g transform="translate(135 90)"><Fist /></g><g transform="translate(365 90) scale(-1 1)"><Fist /></g></g>
         <path d="M250 155 V75 L243 85 M250 75 L257 85" stroke="#638d35" strokeWidth="2" fill="none" />
       </>}
     </svg>
-    <h3>{kind === "inward" ? "Bring your fingers together. Then apart." : "Lift your fists. Then return to center."}</h3>
-    <p>{kind === "inward" ? "Fingers point inward · thumbs stay up" : "Backs of fists face the camera · lift a couple of inches"}</p>
+    {!overlay && <><h3>{kind === "inward" ? "Move your open hands up and down." : "Lift your fists. Then return to center."}</h3>
+    <p>{kind === "inward" ? "Fingers point inward · thumbs stay up" : "Backs of fists face the camera · lift a couple of inches"}</p></>}
   </article>;
 }

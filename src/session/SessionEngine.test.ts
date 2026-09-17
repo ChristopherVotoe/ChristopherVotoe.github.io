@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { SessionEngine } from "./SessionEngine.ts";
-import { dance, durationInFrames } from "../choreography/dance.ts";
+import { dance, durationInFrames, playbackRate, timeline } from "../choreography/dance.ts";
 
 test("recording starts after an explicit start and countdown, without pose detection", () => {
   const e = new SessionEngine();
@@ -40,9 +40,19 @@ test("pausing discards an unfinished capture and resumes that step", () => {
   e.begin(5000); assert.equal(e.step, 0); assert.equal(e.phase, "countdown");
 });
 
-test("both clips alternate in a eight-second silent timeline", () => {
+test("86 BPM clips repeat without gaps across the 24–35 second audio excerpt", () => {
   assert.equal(new Set(dance.order).size, 2);
-  assert.equal(durationInFrames / dance.fps, 8);
-  assert.equal(dance.segmentFrames / dance.fps, 4);
-  assert.ok(dance.captureMs > dance.segmentFrames / dance.fps * 1000);
+  assert.equal(durationInFrames / dance.fps, dance.audioEndSeconds - dance.audioStartSeconds);
+  assert.equal(durationInFrames, 330);
+  assert.ok(Math.abs(playbackRate - 2.8666666667) < 1e-8);
+  let end = 0;
+  timeline.forEach((segment) => {
+    assert.equal(segment.from, end);
+    assert.equal(segment.clipIndex, segment.from < 90 ? 0 : 1);
+    if (segment.clipIndex === 0) assert.ok(segment.from + segment.duration <= 90);
+    assert.ok(segment.duration > 0);
+    end += segment.duration;
+  });
+  assert.equal(end, durationInFrames);
+  assert.equal(timeline.find((segment) => segment.clipIndex === 1)?.from, 90);
 });

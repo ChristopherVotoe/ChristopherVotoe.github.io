@@ -2,7 +2,7 @@ export type GestureId = "open-palms" | "fists" | "peace" | "point" | "thumbs" | 
 export type FingerPattern = readonly (0 | 1 | null)[];
 
 export const gestures: Record<GestureId, { name: string; symbol: string; instruction: string; fingers: FingerPattern }> = {
-  "inward-open": { name: "Open hands inward", symbol: "→ ←", instruction: "Open both hands with fingers spread, pointing toward each other. Keep your thumbs up, like the first photo.", fingers: [1, 1, 1, 1, 1] },
+  "inward-open": { name: "Open hands up & down", symbol: "↕", instruction: "Open both hands with fingers spread, pointing toward each other. Keep your thumbs up and move both hands vertically up and down.", fingers: [1, 1, 1, 1, 1] },
   "raised-fists": { name: "Fists up", symbol: "✊ ✊", instruction: "Close both hands into fists and lift them beside your chin, wrists below your knuckles, like the second photo.", fingers: [0, 0, 0, 0, 0] },
   "open-palms": { name: "Open palms", symbol: "✋ 🤚", instruction: "Face both palms toward the camera and extend all five fingers.", fingers: [1, 1, 1, 1, 1] },
   fists: { name: "Double fists", symbol: "✊ ✊", instruction: "Make two fists. Curl your fingers and tuck your thumbs across them.", fingers: [0, 0, 0, 0, 0] },

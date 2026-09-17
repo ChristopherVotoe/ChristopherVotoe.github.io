@@ -6,11 +6,11 @@
 .motion-demo { width: 100%; display: block; max-height: 280px; }
 .motion-card h3 { font-size: 16px; font-weight: 500; margin: 10px 0; }
 .motion-card p { font-size: 12px; line-height: 1.6; color: var(--muted); margin: 0; }
-.moving .hand-in-left { animation: hand-in-left 2s ease-in-out infinite; }
-.moving .hand-in-right { animation: hand-in-right 2s ease-in-out infinite; }
+.moving .hand-in-left { animation: open-hands-vertical 2s ease-in-out infinite; }
+.moving .hand-in-right { animation: open-hands-vertical 2s ease-in-out infinite; }
 .moving .hands-up { animation: hands-up 2s ease-in-out infinite; }
-@keyframes hand-in-left { 0%,100% { transform: translateX(0); } 50% { transform: translateX(60px); } }
-@keyframes hand-in-right { 0%,100% { transform: translateX(0); } 50% { transform: translateX(-60px); } }
+@keyframes open-hands-vertical { 0%,100% { transform: translateY(-45px); } 50% { transform: translateY(25px); } }
+.hand-in-left, .hand-in-right { transform: translateY(-45px); }
 @keyframes hands-up { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-75px); } }
 @media (max-width: 640px) { .motion-guides { gap: 10px; }.motion-card { padding: 10px; }.motion-heading { flex-wrap: wrap; font-size: 8px; }.motion-card h3 { font-size: 13px; }.motion-card p { font-size: 10px; } }
 .pose-reference { display: flex; align-items: center; gap: 16px; padding: 14px; background: #edf3e4; border-radius: 8px; font-size: 13px; }
@@ -45,3 +45,9 @@ main { max-width: 1320px; padding: 0 56px; margin: auto; }
 .tips { display: grid; grid-template-columns: repeat(3, 1fr); gap: 36px; padding: 32px 0 40px; }.tips > div { display: flex; gap: 14px; }.tips > div > span { color: #849174; font-size: 11px; padding-top: 3px; font-family: monospace; }.tips p { margin: 0; font-size: 12px; color: var(--muted); line-height: 1.7; }.tips strong { display: block; font-size: 13px; color: var(--ink); margin-bottom: 3px; font-weight: 500; }footer { display: flex; justify-content: space-between; border-top: 1px solid var(--line); padding: 24px 0; color: var(--muted); font-size: 10px; }footer span:first-child { font-family: Georgia, serif; font-size: 13px; letter-spacing: 0; font-style: italic; }
 @media (max-width: 900px) { main { padding: 0 24px; }.intro > p:last-child { position: static; width: auto; max-width: 360px; margin: 22px 0 0; }.studio { grid-template-columns: 1.3fr 1fr; }.controls { padding: 24px 20px; }.preview { aspect-ratio: 3/4; }.metrics { gap: 20px; }.tips { gap: 20px; } }
 @media (max-width: 640px) { main { padding: 0 16px; }.topbar { height: 74px; }.brand span { font-size: 15px; }.badge { font-size: 8px; letter-spacing: .4px; }.intro { padding: 36px 0 28px; }h1 { letter-spacing: -2.6px; }.studio { grid-template-columns: 1fr; }.preview-panel { border-right: 0; border-bottom: 1px solid var(--line); padding: 14px; }.preview { aspect-ratio: 4/3; }.controls { padding: 24px; }.controls h2 br { display: none; }.metrics { margin-top: 20px; justify-content: space-between; }.tips { grid-template-columns: 1fr; gap: 18px; padding: 28px 8px; }footer { gap: 18px; font-size: 8px; } }
+
+/* Preview guidance sits above the camera; MediaRecorder still captures the raw stream. */
+.motion-overlay { position: absolute; inset: 0; z-index: 1; display: grid; place-items: center; pointer-events: none; }
+.motion-overlay .motion-demo { width: 100%; height: 100%; max-height: none; opacity: .58; filter: drop-shadow(0 1px 3px rgba(0,0,0,.6)); }
+.tracking-label { z-index: 2; max-width: calc(100% - 32px); }
+.preview-panel { scroll-margin-top: 16px; }

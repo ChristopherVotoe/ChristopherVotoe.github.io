@@ -99,15 +99,12 @@ export function TrackingStudio() {
     <main>
       <header className="topbar"><Link className="brand" href="/">✳ <span>Hand Signal Dance</span></Link><span className="badge">THE TRACKING LAB <i /></span></header>
       <section className="intro"><p className="eyebrow">SMALL MOVES. SOMETHING GOOD.</p><h1>It starts with<br />a little <em>wave.</em></h1><p>Follow the moving hands. We’ll record each movement after a countdown, then stitch your clips together.</p></section>
-      <section className="motion-guides" aria-label="Follow-along hand movements">
-        <MotionGuide kind="inward" active={session.view.step === 0} phase={session.view.phase} countdown={session.view.countdown} />
-        <MotionGuide kind="fists" active={session.view.step === 1} phase={session.view.phase} countdown={session.view.countdown} />
-      </section>
       <section className="studio" aria-label="Hand tracking playground">
         <div className="preview-panel">
           <div className="panel-heading"><span><i className={active ? "dot live" : "dot"} /> CAMERA PREVIEW</span><span className={recording ? "recording-indicator" : ""}>{recording ? "● RECORDING" : "NOT RECORDING"}</span></div>
           <div className={`preview ${mirrored ? "mirrored" : ""}`}>
             <video ref={videoRef} muted playsInline aria-label="Live camera preview" />
+            {active && <MotionGuide overlay kind={session.view.step === 0 ? "inward" : "fists"} active phase={session.view.phase} countdown={session.view.countdown} />}
             {!active && <div className="placeholder"><div className="hand-icon" aria-hidden="true">✋</div><h2>{starting ? "Getting ready…" : "Your stage is right here"}</h2><p>{starting ? "Allow camera access to see your preview." : "Switch on your camera, then hold up both hands."}</p></div>}
             {active && <div className="tracking-label">{recording ? "Recording — follow the moving hands" : session.view.phase === "countdown" ? `Get ready: ${session.view.countdown}` : gesture.name}</div>}
           </div>
@@ -116,7 +113,7 @@ export function TrackingStudio() {
         <aside className="controls">
           <p className="eyebrow">MOVEMENT {session.view.step + 1} / {dance.steps.length}</p>
           <h2>Follow the hands.<br />Find your rhythm.</h2>
-          <p>{session.view.step === 0 ? "Point your open fingers inward. Bring both hands toward the center, then move them apart again." : "Show the backs of your closed fists. Start at the center, lift both fists a couple of inches, then return to the center."}</p>
+          <p>{session.view.step === 0 ? "Point your open fingers inward. Move both hands together vertically, from up to down and back up." : "Show the backs of your closed fists. Start at the center, lift both fists a couple of inches, then return to the center."}</p>
           <p>Follow two slow repetitions per clip. Recording begins automatically after the two-second countdown. You can review and retake either movement.</p>
           <div className="status" role="status"><i className={active ? "dot live" : "dot"} />{starting ? "Preparing your camera" : active ? "Camera ready" : "Camera is off"}</div>
           {error && <p className="error" role="alert">{error}</p>}
@@ -125,8 +122,8 @@ export function TrackingStudio() {
           <p className="privacy">Recording starts only after you start the challenge and the countdown finishes. Follow the visual at your own pace; your movement is not scored. No microphone audio is captured. Switching tabs stops the camera and pauses the challenge.</p>
         </aside>
       </section>
-      <SessionPanel session={session} active={active} onBegin={(step) => { session.begin(step); document.querySelector(".motion-guides")?.scrollIntoView({ behavior: "smooth", block: "start" }); }} onRender={() => { stop(); void session.render(); }} onDelete={() => { stop(); session.remove(); }} />
-      <section className="tips" aria-label="Tracking tips"><div><span>01</span><p><strong>Find your light</strong>Face a light source so your hand is easy to see.</p></div><div><span>02</span><p><strong>Give it some space</strong>Keep both hands fully inside the frame, with space between them.</p></div><div><span>03</span><p><strong>Make a move</strong>Move with the guides: inward and out, then up and down.</p></div></section>
+      <SessionPanel session={session} active={active} onBegin={(step) => { session.begin(step); document.querySelector(".preview-panel")?.scrollIntoView({ behavior: "smooth", block: "start" }); }} onRender={() => { stop(); void session.render(); }} onDelete={() => { stop(); session.remove(); }} />
+      <section className="tips" aria-label="Tracking tips"><div><span>01</span><p><strong>Find your light</strong>Face a light source so your hand is easy to see.</p></div><div><span>02</span><p><strong>Give it some space</strong>Keep both hands fully inside the frame, with space between them.</p></div><div><span>03</span><p><strong>Make a move</strong>Move with the guides: open hands up and down, then lift your fists and return.</p></div></section>
       <footer><span>A little movement. A lot of possibility.</span><span>PROTOTYPE / HAND SIGNAL DANCE</span></footer>
     </main>
   );
