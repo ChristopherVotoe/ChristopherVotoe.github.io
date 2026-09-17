@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
+    "test": "node --experimental-strip-types --test src/vision/*.test.ts src/session/*.test.ts",
+    "prepare:render": "node scripts/prepare-audio.mjs && node scripts/prepare-render.mjs",
+    "test:browser": "node scripts/test-browser.mjs",
     "dev": "next dev",
     "build": "next build --webpack",
     "start": "next start",
@@ -12,11 +15,15 @@
   },
   "dependencies": {
     "@mediapipe/tasks-vision": "^1.0.1",
+    "@remotion/bundler": "^4.0.525",
+    "@remotion/renderer": "^4.0.525",
     "next": "^16.3.5",
     "react": "^19.3.0",
-    "react-dom": "^19.3.0"
+    "react-dom": "^19.3.0",
+    "remotion": "^4.0.525"
   },
   "devDependencies": {
+    "@playwright/test": "^1.63.0",
     "@types/node": "^22.20.3",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",

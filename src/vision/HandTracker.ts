@@ -5,7 +5,7 @@ export async function createHandTracker() {
   const options = {
     baseOptions: { modelAssetPath: "/mediapipe/hand_landmarker.task" },
     runningMode: "VIDEO" as const,
-    numHands: 1,
+    numHands: 2,
     minHandDetectionConfidence: 0.5,
     minHandPresenceConfidence: 0.5,
     minTrackingConfidence: 0.5,
