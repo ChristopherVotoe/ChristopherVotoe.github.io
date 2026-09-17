@@ -1,9 +1,8 @@
-import { mkdtemp, mkdir, writeFile, copyFile, readFile, rm } from "node:fs/promises";
+import { mkdtemp, mkdir, writeFile, readFile, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { bundle } from "@remotion/bundler";
 import { makeCancelSignal, renderMedia, selectComposition } from "@remotion/renderer";
-import { dance } from "../choreography/dance.ts";
 
 export async function renderDance(clips: File[], mirrored: boolean[], signal: AbortSignal): Promise<Uint8Array> {
   const root = await mkdtemp(join(tmpdir(), "hand-dance-"));
@@ -21,7 +20,6 @@ export async function renderDance(clips: File[], mirrored: boolean[], signal: Ab
       await writeFile(join(assets, name), Buffer.from(await clip.arrayBuffer()));
       names.push(name);
     }
-    await copyFile(resolve("public/audio", dance.song), join(assets, dance.song));
     const serveUrl = await bundle({ entryPoint: resolve("src/remotion/Root.tsx"), outDir: join(root, "bundle"), publicDir: assets, enableCaching: false });
     signal.throwIfAborted();
     const inputProps = { clips: names, mirrored };

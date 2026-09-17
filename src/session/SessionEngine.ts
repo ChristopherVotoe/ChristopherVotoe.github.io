@@ -15,12 +15,8 @@ export class SessionEngine {
     this.countdownUntil = now + 2000;
   }
 
-  tick(now: number, matched: boolean): boolean {
-    if (this.phase === "countdown") {
-      if (now >= this.countdownUntil) this.phase = "matching";
-      return false;
-    }
-    if (this.phase !== "matching" || !matched) return false;
+  tick(now: number): boolean {
+    if (this.phase !== "countdown" || now < this.countdownUntil) return false;
     this.phase = "recording";
     return true;
   }
@@ -35,7 +31,7 @@ export class SessionEngine {
 
   pause() { if (["countdown", "matching", "recording"].includes(this.phase)) this.phase = "paused"; }
   render() {
-    if (this.captured.size !== dance.steps.length || this.phase !== "review") throw new Error("Record and review all five clips first.");
+    if (this.captured.size !== dance.steps.length || this.phase !== "review") throw new Error("Record and review both clips first.");
     this.phase = "processing";
   }
   reset() { this.phase = "ready"; this.step = 0; this.captured.clear(); this.countdownUntil = 0; }

@@ -19,7 +19,7 @@ export function scoreOpenPalm(points: Landmark[]): number {
 }
 
 export function scoreGesture(points: Landmark[], gesture: GestureId): number {
-  if (gesture === "open-palms") return scoreOpenPalm(points);
+  if (gesture === "open-palms" || gesture === "inward-open") return scoreOpenPalm(points);
   if (points.length !== 21 || points.some((p) => ![p.x, p.y, p.z].every(Number.isFinite))) return 0;
   const scores = [1, 5, 9, 13, 17].map((base, finger) => {
     const expected = gestures[gesture].fingers[finger];

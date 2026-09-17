@@ -2,6 +2,7 @@ import { normalizeHand, type Landmark } from "./GestureNormalizer.ts";
 import { scoreGesture } from "./GestureScorer.ts";
 import type { GestureId } from "../gestures/catalog.ts";
 import { openPalm } from "../gestures/openPalm.ts";
+import { scorePairDirection } from "./PairPoseScorer.ts";
 
 export type Side = "Left" | "Right";
 export type HandMatch = { detected: boolean; score: number; hold: number; matched: boolean };
@@ -36,7 +37,10 @@ export class GestureMatcher {
       const prior = this.previous[side];
       const smooth = raw.map((p, i) => prior ? { x: .5 * p.x + .5 * prior[i].x, y: .5 * p.y + .5 * prior[i].y, z: .5 * p.z + .5 * prior[i].z } : p);
       this.previous[side] = smooth;
-      const score = scoreGesture(smooth, this.target);
+      const index = indices[0];
+      const otherIndex = result.handedness.findIndex((categories, i) => i !== index && categories[0]?.categoryName === (side === "Left" ? "Right" : "Left") && categories[0].score >= .6);
+      const direction = scorePairDirection(result.landmarks[index], result.landmarks[otherIndex], this.target, aspect);
+      const score = Math.min(scoreGesture(smooth, this.target), direction);
       // Raw validity prevents smoothing from continuing a hold after the pose is lost.
       const valid = score >= openPalm.threshold && scoreGesture(raw, this.target) >= openPalm.threshold;
       if (!valid) delete this.since[side];

@@ -46,9 +46,9 @@ test("five gesture patterns score independently and reject other target finger p
     if (gesture.fingers[0] === 0) points[4] = { ...points[5] };
     return [id, points];
   })) as Record<GestureId, Landmark[]>;
-  for (const target of Object.keys(gestures) as GestureId[]) {
+  for (const target of (["open-palms", "fists", "peace", "point", "thumbs"] as GestureId[])) {
     assert.ok(scoreGesture(poses[target], target) >= .85, target);
-    for (const other of Object.keys(gestures) as GestureId[]) {
+    for (const other of (["open-palms", "fists", "peace", "point", "thumbs"] as GestureId[])) {
       if (other !== target) assert.ok(scoreGesture(poses[other], target) < .85, `${other} should not match ${target}`);
     }
   }

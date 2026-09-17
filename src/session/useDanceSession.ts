@@ -46,10 +46,10 @@ export function useDanceSession(stream: React.RefObject<MediaStream | null>) {
     } catch (error) { publish(error instanceof Error ? error.message : "Cannot start recording."); }
   };
 
-  const frame = (now: number, success: boolean, mirrored: boolean) => {
+  const frame = (now: number, mirrored: boolean) => {
     const e = engine.current;
     const before = e.phase;
-    const shouldRecord = e.tick(now, success);
+    const shouldRecord = e.tick(now);
     if (before === "countdown" || e.phase !== before) publish();
     if (!shouldRecord) return;
     const controller = new AbortController();

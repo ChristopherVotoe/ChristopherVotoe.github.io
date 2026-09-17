@@ -30,7 +30,7 @@ export async function POST(request: Request) {
     const form = await new Response(new Blob(chunks), { headers: { "Content-Type": request.headers.get("content-type")! } }).formData();
     const clips = dance.steps.map((_, index) => form.get(`clip${index}`));
     if (clips.some((clip) => !(clip instanceof File) || clip.size === 0 || clip.size > MAX_CLIP || !/^video\/(webm|mp4)(;|$)/.test(clip.type))) {
-      return Response.json({ error: "Provide five non-empty WebM or MP4 clips, each under 8 MB." }, { status: 400 });
+      return Response.json({ error: "Provide two non-empty WebM or MP4 clips, each under 8 MB." }, { status: 400 });
     }
     const mirrored: unknown = JSON.parse(String(form.get("mirrored")));
     if (!Array.isArray(mirrored) || mirrored.length !== dance.steps.length || mirrored.some((value) => typeof value !== "boolean")) return Response.json({ error: "Invalid camera orientation." }, { status: 400 });

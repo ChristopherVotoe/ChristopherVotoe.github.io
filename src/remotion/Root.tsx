@@ -1,5 +1,5 @@
 import React from "react";
-import { AbsoluteFill, Audio, Composition, OffthreadVideo, Sequence, registerRoot, staticFile, useCurrentFrame } from "remotion";
+import { AbsoluteFill, Composition, OffthreadVideo, Sequence, registerRoot, staticFile, useCurrentFrame } from "remotion";
 import { dance, durationInFrames } from "../choreography/dance";
 
 export type DanceProps = { clips: string[]; mirrored: boolean[] };
@@ -16,7 +16,6 @@ function Segment({ src, mirrored, index }: { src: string; mirrored: boolean; ind
 
 export function DanceVideo({ clips, mirrored }: DanceProps) {
   return <AbsoluteFill style={{ background: "#18221a" }}>
-    <Audio src={staticFile(dance.song)} volume={.85} />
     {dance.order.map((clipIndex, index) => <Sequence key={index} from={index * dance.segmentFrames} durationInFrames={dance.segmentFrames}>
       <Segment src={clips[clipIndex]} mirrored={mirrored[clipIndex]} index={index} />
     </Sequence>)}

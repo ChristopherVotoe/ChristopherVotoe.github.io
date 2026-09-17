@@ -12,7 +12,8 @@ export async function createHandTracker() {
       [1, 5, 9, 13, 17].forEach((base, index) => { if (pattern[index] === 0) points[base + 3] = { ...points[base], y: points[base].y - .04 }; });
       if (pattern[0] === 0) points[4] = { ...points[5] };
       const aspect = video.videoWidth / video.videoHeight;
-      const landmarks = [1, -1].slice(0, window.testHands ?? 2).map((sign, index) => points.map((p) => ({ x: .3 + index * .4 + sign * p.x * .16 / aspect, y: .7 + p.y * .16, z: p.z * .16 / aspect })));
+      const inward = window.testGesture === "inward-open";
+      const landmarks = [1, -1].slice(0, window.testHands ?? 2).map((sign, index) => points.map((p) => ({ x: .25 + index * .5 + sign * (inward ? -p.y : p.x) * .16 / aspect, y: .7 + (inward ? p.x : p.y) * .16, z: p.z * .16 / aspect })));
       return { landmarks, worldLandmarks: [], handedness: landmarks.map((_, index) => [{ categoryName: index ? "Right" : "Left", score: .99 }]) };
     },
   };

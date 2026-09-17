@@ -42,31 +42,29 @@ try {
   await page.goto(`http://127.0.0.1:${server.address().port}`);
   console.log("Test UI loaded.");
   assert.equal(await page.getByRole("button", { name: "Start recording challenge", exact: true }).isDisabled(), true);
+  await page.evaluate(() => { window.testGesture = "inward-open"; });
   await page.getByRole("button", { name: "Enable camera", exact: true }).click();
   await page.getByRole("button", { name: "Stop camera", exact: true }).waitFor();
-  await page.waitForFunction(() => document.querySelector('meter')?.value >= .85);
+  assert.equal(await page.locator(".motion-demo").count(), 2);
   assert.equal(uploads, 0);
   await page.getByRole("button", { name: "Start recording challenge", exact: true }).click();
-  // One hand cannot trigger recording even after the countdown and hold period.
-  await page.evaluate(() => { window.testHands = 1; });
-  await page.waitForTimeout(2700);
-  assert.equal(await page.locator(".recording-indicator").count(), 0);
-  await page.evaluate(() => { window.testHands = 2; });
-  for (const [index, gesture] of ["open-palms", "fists", "peace", "point", "thumbs"].entries()) {
+  // Recording is time-driven and does not require detected hands.
+  await page.evaluate(() => { window.testHands = 0; });
+  for (const [index, gesture] of ["inward-open", "raised-fists"].entries()) {
     await page.evaluate((id) => { window.testGesture = id; }, gesture);
     await page.waitForFunction((count) => document.querySelectorAll(".step-list .captured").length === count, index + 1, { timeout: 15000 });
     console.log(`Recorded clip ${index + 1}: ${gesture}`);
   }
   await page.getByRole("button", { name: "Create my video", exact: false }).waitFor();
   assert.equal(uploads, 0, "review must not upload automatically");
-  assert.equal(await page.locator(".clip-grid video").count(), 5);
-  // Retake one clip; pause midway, resume, and ensure the clip count stays at five.
-  await page.getByRole("button", { name: "Retake clip 3", exact: true }).click();
+  assert.equal(await page.locator(".clip-grid video").count(), 2);
+  // Retake one clip; pause midway, resume, and ensure the clip count stays at two.
+  await page.getByRole("button", { name: "Retake clip 2", exact: true }).click();
   await page.getByRole("button", { name: "Pause challenge", exact: true }).click();
   await page.getByRole("button", { name: "Resume recording challenge", exact: true }).click();
-  await page.evaluate(() => { window.testGesture = "peace"; });
+  await page.evaluate(() => { window.testGesture = "raised-fists"; });
   await page.getByRole("button", { name: "Create my video", exact: false }).waitFor({ timeout: 15000 });
-  assert.equal(await page.locator(".clip-grid video").count(), 5);
+  assert.equal(await page.locator(".clip-grid video").count(), 2);
   await page.screenshot({ path: join(output, "review.png"), fullPage: true });
   const before = (await readdir(tmpdir())).filter((name) => name.startsWith("hand-dance-"));
   await page.getByRole("button", { name: "Create my video", exact: false }).click();
@@ -77,9 +75,9 @@ try {
   const path = join(output, "dance.mp4");
   await writeFile(path, Buffer.from(bytes));
   const metadata = await getVideoMetadata(path);
-  assert.equal(metadata.codec, "h264"); assert.equal(metadata.audioCodec, "aac");
+  assert.equal(metadata.codec, "h264"); assert.equal(metadata.audioCodec, null);
   assert.equal(metadata.width, 960); assert.equal(metadata.height, 540);
-  assert.ok(Math.abs(metadata.durationInSeconds - 10) < .1);
+  assert.ok(Math.abs(metadata.durationInSeconds - 8) < .1);
   const video = page.getByLabel("Your final dance video");
   await video.evaluate(async (el) => { el.muted = true; await el.play(); });
   await page.waitForFunction(() => document.querySelector('.reveal video').currentTime > .2);
@@ -91,7 +89,7 @@ try {
   assert.deepEqual(after, before, "temporary rendering directories must be removed");
   assert.equal(uploads, 1);
   assert.deepEqual(errors, []);
-  console.log("PASS: two-hand gating, five real MediaRecorder clips, retake/pause/resume, explicit upload, 10-second H.264/AAC MP4 playback, deletion, and temporary-file cleanup.");
+  console.log("PASS: timed follow-along, two real MediaRecorder clips, retake/pause/resume, explicit upload, 8-second silent H.264 MP4 playback, deletion, and temporary-file cleanup.");
   console.log(JSON.stringify(metadata));
 } finally {
   await browser.close();
