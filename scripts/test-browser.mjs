@@ -20,7 +20,7 @@ try {
   page.on("request", (req) => { if (req.url().endsWith("/api/render")) uploads++; });
   const before = (await readdir(tmpdir())).filter((name) => name.startsWith("hand-dance-"));
   const responsePromise = page.waitForResponse((response) => response.url().endsWith("/api/render"), { timeout: 200000 });
-  await page.getByRole("link", { name: /Test now/ }).click();
+  await page.getByRole("link", { name: /Test Now/ }).click();
   await page.waitForURL("**/record");
   await page.locator(".motion-overlay").waitFor();
   await page.getByRole("button", { name: "Ready to record?" }).click();
