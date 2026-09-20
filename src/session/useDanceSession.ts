@@ -10,15 +10,16 @@ export type Capture = { blob: Blob; url: string; mirrored: boolean };
 
 export function useDanceSession(stream: React.RefObject<MediaStream | null>) {
   const audio = useRef<AudioContext | null>(null);
+  const outputFile = useRef<File | null>(null);
   const outputFormat = useRef("webm");
   const engine = useRef(new SessionEngine());
   const clips = useRef<(Capture | null)[]>(Array.from({ length: dance.steps.length }, () => null));
   const output = useRef<string | null>(null);
   const operation = useRef<AbortController | null>(null);
-  const [view, setView] = useState({ phase: "ready" as Phase, step: 0, countdown: 3, clips: Array.from({ length: dance.steps.length }, (): Capture | null => null), output: null as string | null, outputFormat: "webm", error: "" });
+  const [view, setView] = useState({ phase: "ready" as Phase, step: 0, countdown: 3, clips: Array.from({ length: dance.steps.length }, (): Capture | null => null), output: null as string | null, outputFormat: "webm", outputFile: null as File | null, error: "" });
   const publish = useCallback((error = "") => {
     const e = engine.current;
-    setView({ phase: e.phase, step: e.step, countdown: Math.max(1, Math.ceil((e.countdownUntil - performance.now()) / 1000)), clips: [...clips.current], output: output.current, outputFormat: outputFormat.current, error });
+    setView({ phase: e.phase, step: e.step, countdown: Math.max(1, Math.ceil((e.countdownUntil - performance.now()) / 1000)), clips: [...clips.current], output: output.current, outputFormat: outputFormat.current, outputFile: outputFile.current, error });
   }, []);
 
   const pause = useCallback(() => {
@@ -34,6 +35,7 @@ export function useDanceSession(stream: React.RefObject<MediaStream | null>) {
     clips.current = Array.from({ length: dance.steps.length }, () => null);
     if (output.current) URL.revokeObjectURL(output.current);
     output.current = null;
+    outputFile.current = null;
     if (audio.current && audio.current.state !== "closed") void audio.current.close();
     audio.current = null;
     engine.current.reset();
@@ -49,6 +51,7 @@ export function useDanceSession(stream: React.RefObject<MediaStream | null>) {
       engine.current.begin(performance.now(), step);
       if (output.current) URL.revokeObjectURL(output.current);
       output.current = null;
+    outputFile.current = null;
       publish();
     } catch (error) { publish(error instanceof Error ? error.message : "Cannot start recording."); }
   };
@@ -91,6 +94,7 @@ export function useDanceSession(stream: React.RefObject<MediaStream | null>) {
       outputFormat.current = blob.type.includes("mp4") ? "mp4" : "webm";
       if (controller.signal.aborted || operation.current !== controller) return;
       if (output.current) URL.revokeObjectURL(output.current);
+      outputFile.current = new File([blob], `hand-signal-dance.${outputFormat.current}`, { type: blob.type.split(";")[0] });
       output.current = URL.createObjectURL(blob);
       engine.current.phase = "complete";
       operation.current = null;
@@ -108,6 +112,7 @@ export function useDanceSession(stream: React.RefObject<MediaStream | null>) {
       operation.current?.abort(); operation.current = null;
       if (output.current) URL.revokeObjectURL(output.current);
       output.current = null;
+    outputFile.current = null;
       engine.current.step = step;
       engine.current.phase = "paused";
       publish();

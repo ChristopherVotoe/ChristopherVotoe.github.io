@@ -1,5 +1,6 @@
 "use client";
 
+import { VideoDownload } from "@/components/VideoDownload";
 import { dance } from "@/choreography/dance";
 import { gestures } from "@/gestures/catalog";
 import type { useDanceSession } from "@/session/useDanceSession";
@@ -22,7 +23,7 @@ export function SessionPanel({ session, active, onBegin, onRender, onDelete }: {
       {view.phase === "review" && <div className="session-actions"><button className="primary" onClick={onRender}>Create my video ↗</button><p>Create an 11-second video on your device, with your movements sped up to 86 BPM and repeated to “Join Us for a Bite” (0:24–0:35). Download as MP4 or WebM, depending on your browser. No recordings are uploaded.</p></div>}
     </>}
     {view.phase === "processing" && <div className="render-status" role="status"><h3>Stitching your moves together…</h3><p>Keep this tab visible while your video is created on your device.</p><progress aria-label="Rendering video" /><button className="secondary" onClick={session.cancelRender}>Cancel rendering</button></div>}
-    {view.output && <div className="reveal"><video src={view.output} controls playsInline aria-label="Your final dance video" /><div className="session-actions"><a className="primary" href={view.output} download={`hand-signal-dance.${view.outputFormat}`}>Download {view.outputFormat.toUpperCase()} ↓</a><p>Your two movements, stitched together. Press play to watch or replay. Play with sound to hear “Join Us for a Bite.”</p></div></div>}
+    {view.output && <div className="reveal"><video src={view.output} controls playsInline aria-label="Your final dance video" /><div className="session-actions">{view.outputFile && <VideoDownload url={view.output!} file={view.outputFile} />}<p>Your two movements, stitched together. Press play to watch or replay. Play with sound to hear “Join Us for a Bite.”</p></div></div>}
     {view.phase !== "ready" && <button className="delete-button" onClick={onDelete}>Delete session and videos</button>}
   </section>;
 }

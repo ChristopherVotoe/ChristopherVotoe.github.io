@@ -30,7 +30,7 @@ export function TrackingStudio() {
   const [error, setError] = useState("");
   const [devices, setDevices] = useState<MediaDeviceInfo[]>([]);
   const [deviceId, setDeviceId] = useState("");
-  const [mirrored, setMirrored] = useState(true);
+  const mirrored = true;
   const [smilePreview, setSmilePreview] = useState(false);
 
   const release = useCallback(() => {
@@ -225,6 +225,13 @@ export function TrackingStudio() {
     }
   }, [session.view.phase, router]);
 
+  const beginRecording = () => {
+    session.begin();
+    if (window.matchMedia("(max-width: 900px)").matches) {
+      videoRef.current?.closest(".preview-panel")?.scrollIntoView({ block: "start", behavior: "instant" });
+    }
+  };
+
   const gesture = gestures[dance.steps[session.view.step]];
   const recording = session.view.phase === "recording";
   const playing = ["countdown", "matching", "recording"].includes(session.view.phase);
@@ -232,7 +239,7 @@ export function TrackingStudio() {
   const starting = status === "starting";
 
   return (
-    <main>
+    <main className="record-page">
       <SiteHeader current="record" />
 
       <section className="flow-intro">
@@ -305,46 +312,7 @@ export function TrackingStudio() {
             )}
           </div>
 
-          {/*
-          <div className="preview-footer">
-            <span>↳ {mirrored ? "Mirrored view" : "Natural view"}</span>
-            <label>
-              <input
-                type="checkbox"
-                checked={mirrored}
-                disabled={playing}
-                onChange={(e) => {
-                  setMirrored(e.target.checked);
-                  mirroredRef.current = e.target.checked;
-                }}
-              />
-              Mirror camera
-            </label>
-          </div>
-          */}
-        </div>
-
-        <aside className="controls">
-          <p className="eyebrow">
-            MOVEMENT {session.view.step + 1} / {dance.steps.length}
-          </p>
-
-          <h1>Follow the hands!</h1>
-
-          <h2>Make sure to line up the green dot right under your chin.</h2>
-
-          <p>
-            {session.view.step === 0
-              ? "Point your open fingers inward. Move both hands together vertically, from up to down and back up."
-              : "Show the backs of your closed fists. Start at the center, lift both fists a couple of inches, then return to the center."}
-          </p>
-
-          <p>
-            When you’re ready, press “Ready to record?” to start a three-second
-            countdown. Follow two repetitions of each movement. Your result will
-            appear automatically when both movements are complete.
-          </p>
-
+          <div className="camera-actions">
           <div className="status" role="status">
             <i className={active ? "dot live" : "dot"} />
             {starting
@@ -390,7 +358,7 @@ export function TrackingStudio() {
               playing
                 ? stop()
                 : active
-                  ? session.begin()
+                  ? beginRecording()
                   : void start()
             }
           >
@@ -402,8 +370,32 @@ export function TrackingStudio() {
                   ? "Ready to record?"
                   : "Enable camera"}
 
-            <span aria-hidden="true">↗</span>
+            <span aria-hidden="true">{playing ? "■" : "↗"}</span>
           </button>
+
+          </div>
+        </div>
+
+        <aside className="controls">
+          <p className="eyebrow">
+            MOVEMENT {session.view.step + 1} / {dance.steps.length}
+          </p>
+
+          <h2 className="controls-title">Follow the hands.</h2>
+
+          <p className="alignment-tip">Line up the green dot just under your chin. Prop up your phone so both hands are free.</p>
+
+          <p>
+            {session.view.step === 0
+              ? "Point your open fingers inward. Move both hands together vertically, from up to down and back up."
+              : "Show the backs of your closed fists. Start at the center, lift both fists a couple of inches, then return to the center."}
+          </p>
+
+          <p>
+            When you’re ready, press “Ready to record?” to start a three-second
+            countdown. Follow two repetitions of each movement. Your result will
+            appear automatically when both movements are complete.
+          </p>
 
           <p className="privacy">
             Your test records automatically after each countdown and creates your

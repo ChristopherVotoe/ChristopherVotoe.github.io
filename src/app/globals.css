@@ -84,3 +84,81 @@ main { max-width: 1600px; padding: 0 48px; }
 .smile-option { margin: 20px 0; padding: 14px; border: 1px solid var(--line); border-radius: 8px; }
 .smile-option label { display: flex; gap: 8px; align-items: center; font-size: 13px; }
 .smile-option p, .smile-option small { color: var(--muted); font-size: 11px; line-height: 1.6; }
+
+/* Touch controls and safe space around phone notches / home indicators. */
+html { -webkit-text-size-adjust: 100%; }
+main { padding-left: max(24px, env(safe-area-inset-left)); padding-right: max(24px, env(safe-area-inset-right)); }
+button, a, select { touch-action: manipulation; }
+button, .secondary, .delete-button, .site-header nav a { min-height: 44px; }
+.secondary { display: inline-flex; align-items: center; justify-content: center; text-decoration: none; }
+.site-header nav a { display: inline-flex; align-items: center; padding: 8px; }
+.camera-actions { padding-top: 16px; }
+.camera-actions .status { margin-bottom: 12px; }
+.camera-actions .primary { min-height: 52px; align-items: center; gap: 12px; }
+.camera-actions .camera-select select { font-size: 16px; min-height: 44px; }
+.controls .controls-title { font-size: 32px; line-height: 1.15; letter-spacing: -1px; }
+.video-download { display: flex; flex-wrap: wrap; gap: 12px; flex: 1; }
+.video-download > a, .video-download > button { min-height: 48px; align-items: center; justify-content: center; gap: 12px; }
+.video-download .error { flex-basis: 100%; margin: 0; }
+.results-page { padding-bottom: max(32px, env(safe-area-inset-bottom)); }
+
+@media (min-width: 901px) {
+  main { padding-left: max(48px, env(safe-area-inset-left)); padding-right: max(48px, env(safe-area-inset-right)); }
+}
+@media (max-width: 900px) {
+  .studio { grid-template-columns: minmax(0, 1fr); }
+  .preview-panel { border-right: 0; border-bottom: 1px solid var(--line); }
+  .preview { aspect-ratio: 4 / 3; }
+  .record-page .preview-panel { max-width: 660px; width: 100%; margin: auto; scroll-margin-top: 12px; }
+  .controls { padding: 22px; }
+}
+@media (max-width: 760px) {
+  main { padding-left: max(16px, env(safe-area-inset-left)); padding-right: max(16px, env(safe-area-inset-right)); }
+  .site-header { min-height: 72px; padding-top: env(safe-area-inset-top); gap: 8px; flex-wrap: wrap; }
+  .site-logo { font-size: clamp(19px, 5vw, 24px); gap: 8px; }
+  .logo-bars { gap: 3px; transform: scale(.85); transform-origin: left center; width: 26px; }
+  .site-header nav { gap: 4px; }
+  .site-header nav a { font-size: 14px; }
+  .landing-hero { gap: 28px; padding: 24px 0 32px; }
+  .landing-copy h1 { font-size: clamp(32px, 8.5vw, 42px); margin-bottom: 16px; }
+  .landing-copy > p { margin-bottom: 24px; font-size: 17px; }
+  .landing-copy .start-disclosure { font-size: 13px; }
+  .landing-camera { min-height: 280px; aspect-ratio: 4 / 3; }
+  .camera-hud { inset: 20px 20px auto; font-size: 10px; }
+  .camera-hud > span:last-child { padding: 8px 10px; }
+  .camera-illustration { padding: 44px 20px; }
+  .camera-illustration svg { width: 72px; margin-bottom: 0; }
+  .camera-illustration h2 { font-size: 20px; margin: 12px 0; }
+  .camera-bottom { bottom: 16px; gap: 12px; font-size: 10px; }
+  .record-symbol { width: 40px; height: 40px; }
+  .flow-intro { padding: 16px 0 14px; }
+  .flow-intro .eyebrow { margin-bottom: 10px; font-size: 10px; }
+  .flow-intro h1 { font-size: 30px; overflow-wrap: anywhere; }
+  .flow-intro > p:last-child { font-size: 14px; line-height: 1.5; margin-bottom: 8px; }
+  .preview-panel { padding: 10px; }
+  .panel-heading { font-size: 9px; letter-spacing: .5px; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
+  .motion-overlay .motion-demo { transform: translateY(8%); }
+  .tracking-label { bottom: 8px; left: 8px; max-width: calc(100% - 16px); padding: 8px 10px; font-size: 12px; }
+  .hand-icon { width: 64px; height: 64px; font-size: 34px; margin-bottom: 12px; }
+  .placeholder h2 { font-size: 18px; }
+  .placeholder p { font-size: 12px; }
+  .controls { padding: 18px 16px; }
+  .controls .controls-title { font-size: 24px; }
+  .controls .privacy { font-size: 12px; }
+  .session-actions { flex-direction: column; align-items: stretch; gap: 12px; }
+  .session-actions .primary { max-width: none; }
+  .video-download { flex-direction: column; width: 100%; }
+  .video-download > a, .video-download > button { width: 100%; }
+  .delete-button { width: 100%; font-size: 14px; padding: 12px 4px; }
+  .reveal > video { max-height: 60svh; object-fit: contain; }
+  footer { flex-wrap: wrap; padding-bottom: max(24px, env(safe-area-inset-bottom)); }
+}
+@media (max-width: 900px) and (orientation: landscape) and (max-height: 500px) {
+  .record-page .flow-intro { padding: 4px 0; }
+  .record-page .flow-intro > p { display: none; }
+  .record-page .flow-intro h1 { font-size: 24px; margin-bottom: 10px; }
+  .record-page .preview-panel { display: grid; grid-template-columns: minmax(0, 1fr) minmax(180px, .6fr); gap: 12px; max-width: none; }
+  .record-page .panel-heading { grid-column: 1 / -1; margin: 0; }
+  .record-page .preview { width: 100%; max-height: 64svh; aspect-ratio: 4 / 3; }
+  .record-page .camera-actions { align-self: center; padding: 0; }
+}
