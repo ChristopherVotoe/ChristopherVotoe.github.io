@@ -2,20 +2,23 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { SessionEngine, type Phase } from "./SessionEngine";
+import { prepareRenderAudio, renderDance } from "@/rendering/renderDance";
 import { dance } from "@/choreography/dance";
 import { recordClip, recordingMimeType } from "@/recorder/ClipRecorder";
 
 export type Capture = { blob: Blob; url: string; mirrored: boolean };
 
 export function useDanceSession(stream: React.RefObject<MediaStream | null>) {
+  const audio = useRef<AudioContext | null>(null);
+  const outputFormat = useRef("webm");
   const engine = useRef(new SessionEngine());
   const clips = useRef<(Capture | null)[]>(Array.from({ length: dance.steps.length }, () => null));
   const output = useRef<string | null>(null);
   const operation = useRef<AbortController | null>(null);
-  const [view, setView] = useState({ phase: "ready" as Phase, step: 0, countdown: 3, clips: Array.from({ length: dance.steps.length }, (): Capture | null => null), output: null as string | null, error: "" });
+  const [view, setView] = useState({ phase: "ready" as Phase, step: 0, countdown: 3, clips: Array.from({ length: dance.steps.length }, (): Capture | null => null), output: null as string | null, outputFormat: "webm", error: "" });
   const publish = useCallback((error = "") => {
     const e = engine.current;
-    setView({ phase: e.phase, step: e.step, countdown: Math.max(1, Math.ceil((e.countdownUntil - performance.now()) / 1000)), clips: [...clips.current], output: output.current, error });
+    setView({ phase: e.phase, step: e.step, countdown: Math.max(1, Math.ceil((e.countdownUntil - performance.now()) / 1000)), clips: [...clips.current], output: output.current, outputFormat: outputFormat.current, error });
   }, []);
 
   const pause = useCallback(() => {
@@ -31,6 +34,8 @@ export function useDanceSession(stream: React.RefObject<MediaStream | null>) {
     clips.current = Array.from({ length: dance.steps.length }, () => null);
     if (output.current) URL.revokeObjectURL(output.current);
     output.current = null;
+    if (audio.current && audio.current.state !== "closed") void audio.current.close();
+    audio.current = null;
     engine.current.reset();
   }, []);
   useEffect(() => clear, [clear]);
@@ -39,6 +44,8 @@ export function useDanceSession(stream: React.RefObject<MediaStream | null>) {
     try {
       if (!stream.current?.active) throw new Error("Enable your camera before starting or retaking a clip.");
       recordingMimeType();
+      if (!audio.current || audio.current.state === "closed") audio.current = prepareRenderAudio();
+      else void audio.current.resume().catch(() => {});
       engine.current.begin(performance.now(), step);
       if (output.current) URL.revokeObjectURL(output.current);
       output.current = null;
@@ -77,15 +84,11 @@ export function useDanceSession(stream: React.RefObject<MediaStream | null>) {
       engine.current.render();
       operation.current = controller;
       publish();
-      const body = new FormData();
-      clips.current.forEach((clip, i) => { if (clip) body.append(`clip${i}`, clip.blob, `clip-${i}.${clip.blob.type.includes("mp4") ? "mp4" : "webm"}`); });
-      body.append("mirrored", JSON.stringify(clips.current.map((clip) => clip?.mirrored ?? false)));
-      const response = await fetch("/api/render", { method: "POST", body, signal: controller.signal });
-      if (!response.ok) {
-        const problem = await response.json().catch(() => ({ error: "Video rendering failed. Please retry." }));
-        throw new Error(problem.error);
-      }
-      const blob = await response.blob();
+      if (!audio.current || audio.current.state === "closed") audio.current = prepareRenderAudio();
+      const captures = clips.current;
+      if (captures.some((clip) => !clip)) throw new Error("Record both movements first.");
+      const blob = await renderDance(captures as Capture[], audio.current, controller.signal);
+      outputFormat.current = blob.type.includes("mp4") ? "mp4" : "webm";
       if (controller.signal.aborted || operation.current !== controller) return;
       if (output.current) URL.revokeObjectURL(output.current);
       output.current = URL.createObjectURL(blob);
@@ -93,7 +96,7 @@ export function useDanceSession(stream: React.RefObject<MediaStream | null>) {
       operation.current = null;
       publish();
     } catch (error) {
-      if (controller.signal.aborted) return;
+      if (controller.signal.aborted || operation.current !== controller) return;
       operation.current = null;
       engine.current.phase = "review";
       publish(error instanceof Error ? error.message : "Video rendering failed.");

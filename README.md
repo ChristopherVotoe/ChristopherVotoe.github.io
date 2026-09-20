@@ -1,71 +1,54 @@
 # Hand Signal Dance
 
-First two milestones of the **Hand Signal Dance** software design document, available from MCP server `my-first-mcp` at `info://software-design-doc`.
+A static Next.js camera app. Record two movements and create an 11-second dance video entirely in the browser, with music, mirrored clips, character images, and animated disco lighting. Recordings are never uploaded. Downloads use MP4 when supported, otherwise WebM.
 
 ## Run locally
 
-Requires Node.js 22.18 or newer and npm.
+Requires Node.js 22.18 or newer.
 
 ```sh
-npm install
+npm ci
 npm run prepare:vision
 npm run dev
 ```
 
-Open http://localhost:3000 and select **Enable camera**. Allow camera access, then hold both hands in view. Tracking draws up to 42 landmarks and their connections. Match the open-palm prompt with both hands for 400 ms to see success. Stop the camera with **Stop camera**. Switching tabs also stops tracking.
+Open http://localhost:3000. Start the test, allow the camera, and press **Ready to record?**. Keep the tab visible during recording and video creation. The 0:24–0:35 music excerpt is mixed into the video without microphone audio. Closing or reloading the tab clears the recordings.
 
-The preparation script downloads Google's version 1 float16 hand-landmarker model and copies the installed MediaPipe WASM runtime into `public/mediapipe`. These generated assets are ignored by Git. Run this command again after dependency updates. Both assets are served locally by Next.js; camera frames never leave the browser.
+## Publish to GitHub Pages
 
-## Included
+Repository: `ChristopherVotoe/ChristopherVotoe.github.io`.
 
-- Next.js, React, and strict TypeScript.
-- Front-facing camera preference, camera selection after permission, mirrored preview toggle.
-- Two-hand MediaPipe Hand Landmarker with GPU initialization and CPU fallback.
-- Skeleton overlay, landmark count, and inference rate.
-- Normalized open-palm template matching, separate left/right score meters, and simultaneous 400 ms hold validation.
-- Translation, scale, in-plane rotation, image aspect, and mirror normalization; independent smoothing by model handedness. Missing or ambiguous hands and inference gaps over 200 ms reset holds.
-- Permission and device error handling; cancellation and camera/model cleanup.
-- Responsive layout and explicit camera disclosure. No recording, microphone access, or uploading in this milestone.
+1. In the repository’s **Settings → Pages → Build and deployment**, select **GitHub Actions** as the source.
+2. Push this code to `main`. The **Deploy to GitHub Pages** workflow installs dependencies, prepares the MediaPipe assets, checks the app, builds `out/`, and publishes it.
+3. Visit https://ChristopherVotoe.github.io after the workflow succeeds.
 
-Inference currently runs on the main thread at up to 30 Hz. Moving it to a Web Worker is a later performance step in the SDD. FPS is measured inference throughput, not a promised camera rate.
+The workflow can also be started manually from the Actions tab. This username repository serves from `/`, so no repository-name base path is needed. `trailingSlash` exports `/record/index.html` and `/results/index.html` for direct navigation and refreshes.
+
+If your local remote still points at the old repository name:
+
+```sh
+git remote set-url origin https://github.com/ChristopherVotoe/ChristopherVotoe.github.io.git
+```
 
 ## Validation
 
 ```sh
 npm test
-npm run typecheck
 npm run lint
 npm run build
+npm run typecheck
 ```
 
-Manual camera acceptance checks:
+To preview or test the static output, run `npm start` (requires Python 3), or serve it in one terminal:
 
-1. Confirm no camera permission is requested until Enable camera is pressed.
-2. Allow access and confirm 42 points follow two hands; remove one and confirm its score resets while the other continues.
-3. Toggle mirroring and verify points remain aligned. Switch cameras when available.
-4. Stop, restart, cancel during startup, and switch tabs; confirm the camera indicator turns off when stopped.
-5. Deny camera access and confirm the recovery message. Retry after allowing permission.
-6. Open both palms for 400 ms: both scores should reach 85% and show success. Close either hand, hide it, or show a peace sign: success must clear. One hand alone must never complete the challenge. Cross hands, toggle mirroring, and vary distance and rotation to check identity and alignment.
-7. Test in desktop Chrome and Safari, plus mobile browsers over HTTPS. Localhost is valid on the same device; plain HTTP on a LAN address cannot access cameras.
+```sh
+python3 -m http.server 3000 --directory out
+```
 
-The automated tests cover normalization invariance, rejected poses, hand ordering, independent scores, simultaneous holds, disappearance, and interrupted inference. They use synthetic landmarks. The starter reference in `src/gestures/openPalm.ts` has not yet been calibrated against recorded real-hand samples; live accuracy, handedness stability during occlusion, and performance on mobile remain manual acceptance checks.
+Then run `npm run test:browser` in another terminal. The browser test uses a fake camera, records both clips, creates and plays the final video, verifies audio and duration, deletes the recording, checks direct routes, and confirms there are no render uploads. It uses Remotion’s local Chromium and metadata tools; run `node scripts/prepare-render.mjs` once if the test browser is missing. Remotion compositions remain as reference material but are not used by the deployed app.
 
-## Next milestones
+## Browser behavior
 
-Follow SDD sections 25–27: five gesture prompts with clip recording; music and final video composition; mobile validation and a gesture creation tool. Recording consent, retakes, deletion, and upload disclosure must be added when recording is introduced.
+Video creation uses canvas capture, MediaRecorder, and Web Audio, taking approximately the video’s 11-second duration after loading assets. Keep the tab visible; switching away cancels creation so you can retry without losing the clips. Some browsers require **Retry video** to unlock audio. Browser encoding and seek performance can vary; exact frame timing and lighting differ from the former server renderer. Validate on actual Safari/iOS and Android devices before relying on mobile output.
 
-Reference: [MediaPipe Hand Landmarker for web](https://ai.google.dev/edge/mediapipe/solutions/vision/hand_landmarker/web_js).
-
-## Photo-based two-pose challenge
-
-The active sequence now uses the two supplied reference poses: open hands pointing inward with thumbs raised, then upright closed fists. Both hands must match for 400 ms. Two recorded clips alternate into a silent four-second MP4; music is deferred. The matcher checks finger shapes and image-space hand direction, but does not track the face or enforce distance from the chin. The original five gesture definitions remain available for future sequences. Live pose accuracy still needs webcam validation.
-
-## Follow-along mode (current)
-
-The app now shows two animated hand guides: open hands moving inward and outward, then the backs of closed fists rising and returning. Camera recording starts after a two-second countdown without landmark detection or accuracy scoring. Each clip captures two two-second repetitions; the silent output preserves four seconds from each clip for an eight-second video. Review, retake, pause, and delete controls remain available. Legacy recognition modules remain in the repository but are not loaded by the live experience.
-
-
-24-30
-
-0-3 for first hand
-4-7 for 2nd
+The smile filter falls back to the original camera if MediaPipe cannot initialize. `npm run prepare:vision` copies the runtime and downloads the face and hand models into ignored `public/mediapipe/`; CI prepares these automatically. Camera access requires HTTPS (provided by GitHub Pages) or localhost.

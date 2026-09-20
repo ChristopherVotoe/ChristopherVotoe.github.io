@@ -8,7 +8,7 @@
     "test:browser": "node scripts/test-browser.mjs",
     "dev": "next dev",
     "build": "next build --webpack",
-    "start": "next start",
+    "start": "python3 -m http.server 3000 --directory out",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "prepare:vision": "node scripts/prepare-vision.mjs",

@@ -406,8 +406,8 @@ export function TrackingStudio() {
           </button>
 
           <p className="privacy">
-            Your test records automatically after each countdown and sends the
-            clips to this app’s server to prepare your result. A light visual
+            Your test records automatically after each countdown and creates your
+            result on your device. No recordings are uploaded. A light visual
             expression effect may be applied to the recorded video. Follow the
             visual at your own pace; your movement is not scored. No microphone
             audio is captured. Switching tabs stops the camera and pauses the

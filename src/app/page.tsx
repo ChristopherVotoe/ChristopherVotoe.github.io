@@ -7,7 +7,7 @@ export default function Home() {
     <section className="landing-hero">
       <div className="landing-copy"><h1>Thanks for Testing!</h1>
       <p>Getting started? Just enable the camera and follow the instructions.</p>
-        <TestNowButton /><p className="start-disclosure">By starting, you agree to camera recording and sending your clips to this app’s server to prepare your result. No microphone audio. You can stop at any time.</p>
+        <TestNowButton /><p className="start-disclosure">By starting, you agree to camera recording and creating your result on your device. No recordings are uploaded. No microphone audio. You can stop at any time.</p>
         <ul className="landing-details"><li><span aria-hidden="true">▣</span>Camera required</li><li><span aria-hidden="true">♬</span>No microphone needed</li><li><span aria-hidden="true">◇</span>Your result appears automatically</li></ul>
       </div>
       <div className="landing-camera" aria-label="Camera preview placeholder; camera is off"><i className="corner top-left" /><i className="corner top-right" /><i className="corner bottom-left" /><i className="corner bottom-right" />
