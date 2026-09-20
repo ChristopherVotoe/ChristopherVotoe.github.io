@@ -12,6 +12,33 @@ For initial testing, `Hand Test <onboarding@resend.dev>` can send to `Chris.Voto
 
 Do not paste the API key in chat, JavaScript, GitHub repository variables, or this repository.
 
+## Optional: send the Hello World example locally
+
+The Node-only script `scripts/send-test-email.mjs` uses the Resend SDK. It is never imported into the browser or run by the Pages workflow.
+
+Create `.env.email.local` in the repository root (already ignored by Git):
+
+```dotenv
+RESEND_API_KEY=re_xxxxxxxxx
+EMAIL_FROM=onboarding@resend.dev
+```
+
+Replace `re_xxxxxxxxx` with your real, private API key. If you previously shared a key in chat or committed it, revoke it and create a replacement first. This file is only for the local test command; the deployed Worker still needs its own secrets as described below.
+
+Preview without sending:
+
+```sh
+npm run email:test -- --dry-run
+```
+
+Send the Hello World email to `chris.votoe.official@gmail.com`:
+
+```sh
+npm run email:test
+```
+
+The command reports provider acceptance, not confirmed inbox delivery. Sending with `onboarding@resend.dev` requires that recipient to be your Resend account email.
+
 ## 2. Deploy the Worker
 
 Create or sign in to a [Cloudflare account](https://dash.cloudflare.com). From the repository root, using a current Node.js 22 or newer:

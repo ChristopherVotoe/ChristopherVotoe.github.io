@@ -12,7 +12,8 @@
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "prepare:vision": "node scripts/prepare-vision.mjs",
-    "test:navigation": "node scripts/test-navigation.mjs"
+    "test:navigation": "node scripts/test-navigation.mjs",
+    "email:test": "node --env-file-if-exists=.env.email.local scripts/send-test-email.mjs"
   },
   "dependencies": {
     "@mediapipe/tasks-vision": "^1.0.1",
@@ -21,7 +22,8 @@
     "next": "^16.3.5",
     "react": "^19.3.0",
     "react-dom": "^19.3.0",
-    "remotion": "^4.0.525"
+    "remotion": "^4.0.525",
+    "resend": "^6.28.1"
   },
   "devDependencies": {
     "@playwright/test": "^1.63.0",
