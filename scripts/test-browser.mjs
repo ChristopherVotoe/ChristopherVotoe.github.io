@@ -4,6 +4,7 @@ import { mkdir, writeFile } from "node:fs/promises";
 import { resolve, join } from "node:path";
 import assert from "node:assert/strict";
 
+const testEmail = process.env.TEST_EMAIL === "1";
 const baseURL = process.env.TEST_BASE_URL ?? "http://127.0.0.1:3000";
 const output = resolve("test-results/browser");
 await mkdir(output, { recursive: true });
@@ -15,6 +16,20 @@ page.setDefaultTimeout(20000);
 const errors = [];
 page.on("pageerror", (error) => { errors.push(error.message); console.error(error.message); });
 try {
+  let emailUploads = 0;
+  let firstEmailBody;
+  if (testEmail) await page.route("https://email.example.test/email-video", async (route) => {
+    if (route.request().method() === "OPTIONS") {
+      await route.fulfill({ status: 204, headers: { "Access-Control-Allow-Origin": "*", "Access-Control-Allow-Methods": "POST", "Access-Control-Allow-Headers": "Content-Type, X-Video-Consent" } }); return;
+    }
+    emailUploads++;
+    assert.equal(route.request().headers()["x-video-consent"], "video-email-v1");
+    const body = route.request().postDataBuffer();
+    assert.ok(body.length > 1000);
+    if (emailUploads === 1) firstEmailBody = body;
+    else assert.deepEqual(body, firstEmailBody);
+    await route.fulfill({ status: emailUploads === 1 ? 502 : 200, contentType: "application/json", headers: { "Access-Control-Allow-Origin": "*" }, body: JSON.stringify(emailUploads === 1 ? { error: "Not confirmed" } : { status: "accepted" }) });
+  });
   let failMusic = true;
   await page.route("**/audio/**", async (route) => {
     if (failMusic) { failMusic = false; await route.fulfill({ status: 503, body: "Unavailable" }); }
@@ -26,6 +41,10 @@ try {
   await page.getByRole("link", { name: /Test Now/ }).click();
   await page.waitForURL(/\/record\/?$/);
   await page.locator(".motion-overlay").waitFor();
+  if (testEmail) {
+    assert.equal(await page.getByRole("button", { name: "Ready to record?" }).isDisabled(), true);
+    await page.getByRole("checkbox", { name: /I agree to automatically email/ }).check();
+  }
   await page.getByRole("button", { name: "Ready to record?" }).click();
   await page.waitForURL(/\/results\/?$/, { timeout: 25000 });
   console.log("Ready button completed both camera recordings and started rendering automatically.");
@@ -33,6 +52,11 @@ try {
   await page.getByRole("button", { name: "Retry video", exact: true }).click();
   const download = page.getByRole("link", { name: /Download (MP4|WEBM)/ });
   await download.waitFor({ timeout: 65000 });
+  if (testEmail) {
+    await page.getByRole("button", { name: "Retry email", exact: true }).click();
+    await page.getByRole("status").filter({ hasText: "Email accepted for delivery" }).waitFor();
+    assert.equal(emailUploads, 2);
+  }
   const filename = await download.getAttribute("download");
   const path = join(output, filename);
   const data = await download.evaluate(async (link) => Array.from(new Uint8Array(await (await fetch(link.href)).arrayBuffer())));
@@ -48,6 +72,10 @@ try {
   await page.getByRole("button", { name: "Delete recording and return home", exact: true }).click();
   assert.equal(await page.locator(".clip-grid video, .reveal video").count(), 0);
   await page.getByRole("link", { name: /Test Now/ }).click();
+  if (testEmail) {
+    assert.equal(await page.getByRole("button", { name: "Ready to record?" }).isDisabled(), true);
+    await page.getByRole("checkbox", { name: /I agree to automatically email/ }).check();
+  }
   await page.getByRole("button", { name: "Ready to record?" }).click();
   await page.waitForURL(/\/results\/?$/, { timeout: 25000 });
   await page.getByRole("progressbar").waitFor();
@@ -55,12 +83,13 @@ try {
   await page.waitForTimeout(12000);
   assert.equal(await page.locator(".reveal video").count(), 0);
   assert.equal(uploads, 0);
+  if (testEmail) assert.equal(emailUploads, 2);
   for (const route of ["/record/", "/results/"]) {
     const response = await page.goto(`${baseURL}${route}`);
     assert.equal(response.status(), 200);
   }
   assert.deepEqual(errors, []);
-  console.log("PASS: ready-button flow, two real recordings, eleven-second video with audio, playback, deletion, direct static routes, music failure/retry, cancellation and zero uploads.");
+  console.log(`PASS: ready-button flow, two real recordings, eleven-second video with audio, playback, deletion, direct static routes, music failure/retry, cancellation and zero render uploads${testEmail ? ", email consent and automatic-email failure/retry" : ""}.`);
 } catch (error) {
   await page.screenshot({ path: join(output, "failure.png"), fullPage: true }).catch(() => {});
   throw error;

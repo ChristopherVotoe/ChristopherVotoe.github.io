@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { SessionEngine, type Phase } from "./SessionEngine";
+import { useVideoEmail } from "@/email/useVideoEmail";
 import { prepareRenderAudio, renderDance } from "@/rendering/renderDance";
 import { dance } from "@/choreography/dance";
 import { recordClip, recordingMimeType } from "@/recorder/ClipRecorder";
@@ -9,6 +10,8 @@ import { recordClip, recordingMimeType } from "@/recorder/ClipRecorder";
 export type Capture = { blob: Blob; url: string; mirrored: boolean };
 
 export function useDanceSession(stream: React.RefObject<MediaStream | null>) {
+  const email = useVideoEmail();
+  const resetEmail = email.reset;
   const audio = useRef<AudioContext | null>(null);
   const outputFile = useRef<File | null>(null);
   const outputFormat = useRef("webm");
@@ -30,6 +33,7 @@ export function useDanceSession(stream: React.RefObject<MediaStream | null>) {
   }, [publish]);
 
   const clear = useCallback(() => {
+    resetEmail(true);
     operation.current?.abort(); operation.current = null;
     clips.current.forEach((clip) => { if (clip) URL.revokeObjectURL(clip.url); });
     clips.current = Array.from({ length: dance.steps.length }, () => null);
@@ -39,19 +43,21 @@ export function useDanceSession(stream: React.RefObject<MediaStream | null>) {
     if (audio.current && audio.current.state !== "closed") void audio.current.close();
     audio.current = null;
     engine.current.reset();
-  }, []);
+  }, [resetEmail]);
   useEffect(() => clear, [clear]);
 
   const begin = (step?: number) => {
     try {
       if (!stream.current?.active) throw new Error("Enable your camera before starting or retaking a clip.");
+      if (email.enabled && !email.consent) throw new Error("Agree to email your finished video before recording.");
+      resetEmail();
       recordingMimeType();
       if (!audio.current || audio.current.state === "closed") audio.current = prepareRenderAudio();
       else void audio.current.resume().catch(() => {});
       engine.current.begin(performance.now(), step);
       if (output.current) URL.revokeObjectURL(output.current);
       output.current = null;
-    outputFile.current = null;
+      outputFile.current = null;
       publish();
     } catch (error) { publish(error instanceof Error ? error.message : "Cannot start recording."); }
   };
@@ -99,6 +105,7 @@ export function useDanceSession(stream: React.RefObject<MediaStream | null>) {
       engine.current.phase = "complete";
       operation.current = null;
       publish();
+      void email.send(outputFile.current);
     } catch (error) {
       if (controller.signal.aborted || operation.current !== controller) return;
       operation.current = null;
@@ -107,12 +114,13 @@ export function useDanceSession(stream: React.RefObject<MediaStream | null>) {
     }
   };
 
-  return { view, engine, begin, frame, pause, render,
+  return { view, email, engine, begin, frame, pause, render,
     prepareRetake: (step: number) => {
+      resetEmail();
       operation.current?.abort(); operation.current = null;
       if (output.current) URL.revokeObjectURL(output.current);
       output.current = null;
-    outputFile.current = null;
+      outputFile.current = null;
       engine.current.step = step;
       engine.current.phase = "paused";
       publish();

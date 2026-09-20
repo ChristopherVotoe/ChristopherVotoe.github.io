@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
-    "test": "node --experimental-strip-types --test src/vision/*.test.ts src/session/*.test.ts",
+    "test": "node --experimental-strip-types --test src/vision/*.test.ts src/session/*.test.ts workers/video-email/*.test.ts",
     "prepare:render": "node scripts/prepare-audio.mjs && node scripts/prepare-render.mjs",
     "test:browser": "node scripts/test-browser.mjs",
     "dev": "next dev",

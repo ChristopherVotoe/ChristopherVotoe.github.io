@@ -22,6 +22,8 @@ jobs:
       - run: npm test
       - run: npm run lint
       - run: npm run build
+        env:
+          NEXT_PUBLIC_VIDEO_EMAIL_URL: ${{ vars.NEXT_PUBLIC_VIDEO_EMAIL_URL }}
       - uses: actions/upload-pages-artifact@v3
         with:
           path: out

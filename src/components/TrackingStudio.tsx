@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useEffectEvent, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import { EmailConsent, VideoPrivacy } from "./VideoEmail";
 import { SiteHeader } from "./SiteHeader";
 import { cameraError, openCamera, stopCamera } from "@/camera/CameraManager";
 import { dance } from "@/choreography/dance";
@@ -351,9 +352,10 @@ export function TrackingStudio() {
             </label>
           )}
 
+          <EmailConsent email={session.email} disabled={playing} />
           <button
             className="primary"
-            disabled={starting}
+            disabled={starting || (active && !playing && session.email.enabled && !session.email.consent)}
             onClick={() =>
               playing
                 ? stop()
@@ -398,8 +400,7 @@ export function TrackingStudio() {
           </p>
 
           <p className="privacy">
-            Your test records automatically after each countdown and creates your
-            result on your device. No recordings are uploaded. A light visual
+            Your test records automatically after each countdown. <VideoPrivacy /> A light visual
             expression effect may be applied to the recorded video. Follow the
             visual at your own pace; your movement is not scored. No microphone
             audio is captured. Switching tabs stops the camera and pauses the

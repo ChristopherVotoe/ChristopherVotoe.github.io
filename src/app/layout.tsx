@@ -6,7 +6,7 @@ export const viewport: Viewport = { width: "device-width", initialScale: 1, view
 
 export const metadata: Metadata = {
   title: "Hand Signal Dance",
-  description: "A camera-powered hand tracking playground. Your moves stay on your device.",
+  description: "A camera-powered hand tracking playground. Record two guided movements and create your own dance video.",
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {

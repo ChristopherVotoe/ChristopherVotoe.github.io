@@ -162,3 +162,8 @@ button, .secondary, .delete-button, .site-header nav a { min-height: 44px; }
   .record-page .preview { width: 100%; max-height: 64svh; aspect-ratio: 4 / 3; }
   .record-page .camera-actions { align-self: center; padding: 0; }
 }
+
+.email-consent { display: flex; align-items: flex-start; gap: 12px; padding: 14px; margin: 16px 0; border: 1px solid var(--line); border-radius: 8px; font-size: 13px; line-height: 1.6; cursor: pointer; }
+.email-consent input { width: 22px; height: 22px; margin: 2px 0; flex-shrink: 0; }
+.email-consent span, .email-delivery p { overflow-wrap: anywhere; }
+.email-delivery { margin-top: 24px; padding: 16px; border: 1px solid var(--line); border-radius: 10px; font-size: 14px; line-height: 1.6; }
