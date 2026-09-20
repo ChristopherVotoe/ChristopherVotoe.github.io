@@ -64,14 +64,8 @@ The active sequence now uses the two supplied reference poses: open hands pointi
 
 The app now shows two animated hand guides: open hands moving inward and outward, then the backs of closed fists rising and returning. Camera recording starts after a two-second countdown without landmark detection or accuracy scoring. Each clip captures two two-second repetitions; the silent output preserves four seconds from each clip for an eight-second video. Review, retake, pause, and delete controls remain available. Legacy recognition modules remain in the repository but are not loaded by the live experience.
 
-## Final video and music (current)
 
-Create my video stitches the two captures, open hands first and fists second, into one six-second H.264/AAC MP4. Each four-second movement plays at 4/3 speed to fit three seconds. The backing audio uses only 0:24–0:30 of the supplied `public/audio/Join_Us_For_A_Bite_-_Song_by_JT_Machinima_(mp3.pm).mp3`. The animated guides remain preview-only. The final video can be played with sound and downloaded from the reveal panel.
+24-30
 
-The current edit repeats both clips at 86 BPM across 0:24–0:35 of the song (11 seconds total). One complete recorded up/down cycle maps to one beat; the two-cycle recordings play at approximately 2.867× speed. Capture guides retain their slower practice pace. Beat timing starts at the selected excerpt, with frame-rounded cut boundaries.
-
-The final video now loops the open-hand signal from 0–3 seconds, then loops the fist signal from 3–11 seconds. The 86 BPM playback speed and 0:24–0:35 music excerpt are unchanged.
-
-## Automatic test flow
-
-The home page discloses camera recording and automatic processing before Test now. That button opens `/record`, requests camera access when needed, and starts the two guided recordings after countdowns. Completion routes to `/results`, uploads and renders automatically, then attempts playback with sound. Browser autoplay restrictions may require a Play tap. Permission and render errors offer recovery controls. The dance reveal appears only after processing.
+0-3 for first hand
+4-7 for 2nd
